@@ -202,7 +202,7 @@
             },
             methods: {
                 consultarFilmes: function(nome) {
-                    fetch('http://localhost:8080/filmes?nome=' + nome)
+                    fetch('https://usj-locadora-backend.herokuapp.com/filmes?nome=' + nome)
                         .then((resposta) => resposta.json())
                         .then((listaFilmes) => {
                             this.filmes = listaFilmes;
@@ -210,7 +210,7 @@
                 },
 
                 detalharFilme: function(id) {
-                    fetch('http://localhost:8080/filmes/' + id)
+                    fetch('https://usj-locadora-backend.herokuapp.com/filmes/' + id)
                         .then((resposta) => resposta.json())
                         .then((objetoFilme) => {
                             this.filme = objetoFilme;
@@ -219,7 +219,7 @@
 
                 salvarFilme: function() {
                     if(this.validarCadastro()){
-                        fetch('http://localhost:8080/filmes',
+                        fetch('https://usj-locadora-backend.herokuapp.com/filmes',
                             {
                                 method: "POST",
                                 headers: {"Content-Type": "application/json"},
@@ -236,7 +236,7 @@
 
                 alterarFilme: function(id) {
                     if(this.validarEdicao()) {
-                        fetch('http://localhost:8080/filmes/' + id,
+                        fetch('https://usj-locadora-backend.herokuapp.com/filmes/' + id,
                             {
                                 method: "PUT",
                                 headers: {"Content-Type": "application/json"},
@@ -253,7 +253,7 @@
 
                 excluirFilme: function(id) {
                     $("#confirmarExclusao").modal("hide");
-                    fetch('http://localhost:8080/filmes/' + id,
+                    fetch('https://usj-locadora-backend.herokuapp.com/filmes/' + id,
                         {
                             method: "DELETE"
                         });
