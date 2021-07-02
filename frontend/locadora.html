@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+   <title>Locadora Museu</title>
+</head>
+<body>
+    <div id="app">
+        <nav class="navbar navbar-expand-sm bg-primary navbar-dark justify-content-between">
+            <div class="container">
+                <a class="navbar-brand" href="#" v-on:click="irParaIndex()">Locadora Museu</a>
+                <div class="form-inline">
+                    <input class="form-control mr-sm-2 bg-ligh navbar-ligh" type="text" placeholder="Digite o nome do filme" name="nome" id="nome" v-model="textoConsulta">
+                    <button class="btn btn-light" v-on:click="irParaConsulta(textoConsulta)">Consultar</button>
+                </div>
+                <ul class="navbar-nav ">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#" v-on:click="irParaCadastro()">Adicionar</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <br/><br/><br/>
+
+        <div v-if="exibirIndex" class="container">
+            <div v-if="filmeExcluido" class="alert alert-success alert-dismissible">
+                <strong>Filme excluído com sucesso!</strong>
+              </div>
+            <img class="rounded mx-auto d-block" src="dinossauro.gif" width="626" height="626" alt="Dinossauro"/>
+        </div>
+
+        <div v-if="exibirConsulta">
+            <div v-if="filmes.length" class="container">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo de mídia</th>
+                            <th>Quantidade disponível</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in filmes">
+                            <td>{{item.nome}}</td>
+                            <td>{{item.tipoMidia}}</td>
+                            <td>{{item.quantidadeDisponivel}}</td>
+                            <td><button class="btn btn-primary" v-on:click="irParaDetalhes(item.id)">Visualizar</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="!filmes.length" class="container text-center justify-content-between">
+                <h1>Nenhum filme encontrado</h1>
+                <p>Tente realizar outra pesquisa com um nome diferente.</p>
+                <img class="rounded mx-auto d-block" src="ops.png" width="450" height="450"alt="Dinossauro"/>
+                <button class="btn btn-secondary" v-on:click="irParaIndex()">Voltar</button>
+            </div>
+        </div>
+
+        <div v-if="exibirDetalhes" class="container">
+            <div v-if="filmeCadastrado" class="alert alert-success">
+                <strong>Filme cadastrado com sucesso!</strong>
+            </div>
+            <div v-if="filmeAlterado" class="alert alert-success">
+                <strong>Filme alterado com sucesso!</strong>
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome do filme:</label>
+                <input type="text" class="form-control" id="nome" v-model="filme.nome" readonly>
+            </div>
+            <div class="form-group">
+                <label for="ano">Ano de lançamento:</label>
+                <input type="number" class="form-control" id="ano" v-model="filme.ano" readonly>
+            </div>
+            <div class="form-group">
+                <label for="tipoMidia">Tipo de mídia:</label>
+                <input type="text" class="form-control" nome ="tipoMidia" id="tipoMidia" v-model="filme.tipoMidia" readonly>
+            </div>
+            <div class="form-group">
+                <label for="quantidadeTotal">Quantidade total:</label>
+                <input type="number" class="form-control" id="quantidadeTotal" v-model="filme.quantidadeTotal" readonly>
+            </div>
+            <div class="form-group">
+                <label for="quantidadeDisponivel">Quantidade disponível:</label>
+                <input type="number" class="form-control" id="quantidadeDisponivel" v-model="filme.quantidadeDisponivel" readonly>
+            </div>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-secondary" v-on:click="voltarParaTelaAnterior()">Voltar</button>
+                <button class="btn btn-warning" v-on:click="irParaEdicao(filme.id)">Editar</button>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmarExclusao">Excluir</button>
+            </div>
+        </div>
+
+        <div v-if="exibirEdicao" class="container">
+            <div v-if="formularioComErro" class="alert alert-danger">
+                <strong>{{mensagemDeErro}}</strong>
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome do filme:</label>
+                <input type="text" class="form-control" name="nome" id="nome" v-model="filme.nome" required>
+            </div>
+            <div class="form-group">
+                <label for="ano">Ano de lançamento:</label>
+                <input type="number" class="form-control" name="ano" id="ano" v-model="filme.ano" required>
+            </div>
+            <div class="form-group">
+                <label for="tipoMidia">Tipo de mídia:</label>
+                <select class="form-control" name="tipoMidia" id="tipoMidia" v-model="filme.tipoMidia">
+                    <option>VHS</option>
+                    <option>DVD</option>
+                    <option>Blu-ray</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantidadeTotal">Quantidade total:</label>
+                <input type="number" class="form-control" name="quantidadeTotal" id="quantidadeTotal" v-model="filme.quantidadeTotal" required>
+            </div>
+            <div class="form-group">
+                <label for="quantidadeDisponivel">Quantidade disponível:</label>
+                <input type="number" class="form-control" name="quantidadeDisponivel" id="quantidadeDisponivel" v-model="filme.quantidadeDisponivel" required>
+            </div>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-secondary" v-on:click="irParaDetalhes(filme.id)">Cancelar</button>
+                <button class="btn btn-warning" v-on:click="alterarFilme(filme.id)">Editar</button>
+            </div>
+        </div>
+
+        <div v-if="exibirCadastro" class="container">
+            <div v-if="formularioComErro" class="alert alert-danger">
+                <strong>{{mensagemDeErro}}</strong>
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome do filme:</label>
+                <input type="text" class="form-control" name="nome" id="nome" v-model="filme.nome" required>
+            </div>
+            <div class="form-group">
+                <label for="ano">Ano de lançamento:</label>
+                <input type="number" class="form-control" name="ano" id="ano" v-model="filme.ano" required>
+            </div>
+            <div class="form-group">
+                <label for="tipoMidia">Tipo de mídia:</label>
+                <select class="form-control" name="tipoMidia" id="tipoMidia" v-model="filme.tipoMidia">
+                    <option>VHS</option>
+                    <option>DVD</option>
+                    <option>Blu-ray</option>
+                </select>
+            </div>
+            <div class="form-group">
+                    <label for="quantidadeTotal">Quantidade:</label>
+                    <input type="number" class="form-control" name="quantidadeTotal" id="quantidadeTotal" v-model="filme.quantidadeTotal"required>
+            </div>
+            <div class="d-flex justify-content-between">
+                    <button class="btn btn-secondary" v-on:click="irParaIndex()">Voltar</button>
+                    <button class="btn btn-primary" v-on:click="salvarFilme()">Adicionar</button>
+            </div>
+        </div>
+
+        <div class="modal fade" id="confirmarExclusao" role="dialog">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tem certeza que deseja excluir?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger" v-on:click="excluirFilme(filme.id)">Excluir</button>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+
+    </div>
+    <script>
+        var app = new Vue({
+            el: "#app",
+            data: {
+                exibirIndex: true,
+                exibirConsulta: false,
+                exibirCadastro: false,
+                exibirEdicao: false,
+                exibirDetalhes: false,
+                textoConsulta: "",
+                ultimaConsulta: "",
+                telaAnterior: "",
+                filmeCadastrado: false,
+                filmeAlterado: false,
+                filmeExcluido: false,
+                formularioComErro: false,
+                mensagemDeErro: "",
+                anoAtual: null,
+                filme: {},
+                filmes: []
+            },
+            methods: {
+                consultarFilmes: function(nome) {
+                    fetch('http://localhost:8080/filmes?nome=' + nome)
+                        .then((resposta) => resposta.json())
+                        .then((listaFilmes) => {
+                            this.filmes = listaFilmes;
+                        });
+                },
+
+                detalharFilme: function(id) {
+                    fetch('http://localhost:8080/filmes/' + id)
+                        .then((resposta) => resposta.json())
+                        .then((objetoFilme) => {
+                            this.filme = objetoFilme;
+                        });
+                },
+
+                salvarFilme: function() {
+                    if(this.validarCadastro()){
+                        fetch('http://localhost:8080/filmes',
+                            {
+                                method: "POST",
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify(this.filme)
+                            })
+                            .then((resposta) => resposta.json())
+                            .then((objetoFilme) => {
+                                this.filme = objetoFilme;
+                                this.filmeCadastrado = true;
+                                this.irParaDetalhes(this.filme.id);
+                            });
+                    }
+                },
+
+                alterarFilme: function(id) {
+                    if(this.validarEdicao()) {
+                        fetch('http://localhost:8080/filmes/' + id,
+                            {
+                                method: "PUT",
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify(this.filme)
+                            })
+                            .then((resposta) => resposta.json())
+                            .then((objetoFilme) => {
+                                this.filme = objetoFilme;
+                                this.filmeAlterado = true;
+                                this.irParaDetalhes(this.filme.id);
+                            });
+                    }
+                },
+
+                excluirFilme: function(id) {
+                    $("#confirmarExclusao").modal("hide");
+                    fetch('http://localhost:8080/filmes/' + id,
+                        {
+                            method: "DELETE"
+                        });
+                        this.irParaIndex();
+                        this.filmeExcluido = true;
+                    },
+                
+                irParaIndex: function() {
+                    this.exibirIndex = true;
+                    this.exibirConsulta = false;
+                    this.exibirCadastro = false;
+                    this.exibirEdicao = false;
+                    this.exibirDetalhes = false;
+                    this.filmeExcluido = false;
+                },
+
+                irParaConsulta: function(nome) {
+                    this.consultarFilmes(nome);
+                    this.ultimaConsulta = this.textoConsulta;
+                    this.textoConsulta = "";
+                    this.telaAnterior = "consulta";
+                    this.exibirIndex = false;
+                    this.exibirConsulta = true;
+                    this.exibirCadastro = false;
+                    this.exibirEdicao = false;
+                    this.exibirDetalhes = false;
+                    this.filmeCadastrado = false;
+                    this.filmeAlterado = false;
+                    this.filmeExcluido = false;
+                },
+
+                irParaDetalhes: function(id) {
+                    this.detalharFilme(id);
+                    this.exibirIndex = false;
+                    this.exibirConsulta = false;
+                    this.exibirCadastro = false;
+                    this.exibirEdicao = false;
+                    this.exibirDetalhes = true;
+                },
+
+                irParaEdicao: function(id) {
+                    this.detalharFilme(id);
+                    this.exibirIndex = false;
+                    this.exibirConsulta = false;
+                    this.exibirCadastro = false;
+                    this.exibirEdicao = true;
+                    this.exibirDetalhes = false;
+                    this.formularioComErro = false;
+                },
+
+                irParaCadastro: function() {
+                    this.filme = {tipoMidia: "VHS"};
+                    this.telaAnterior = "cadastro";
+                    this.exibirIndex = false;
+                    this.exibirConsulta = false;
+                    this.exibirCadastro = true;
+                    this.exibirEdicao = false;
+                    this.exibirDetalhes = false;
+                    this.filmeAlterado = false;
+                    this.filmeExcluido = false;
+                    this.formularioComErro = false;
+                },
+
+                voltarParaTelaAnterior: function() {
+                    if(this.telaAnterior == "consulta") {
+                        this.irParaConsulta(this.ultimaConsulta);
+                    } else {
+                        this.irParaIndex();
+                    }
+                },
+
+                validarCadastro: function() {
+                    if(!this.filme.nome) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "Informe o nome do filme!"
+                        return false;
+                    } else if(!this.filme.ano) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "Informe o ano de lançamento do filme!"
+                        return false;
+                    } else if(this.filme.ano < 1895) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "O ano de lançamento não pode ser menor que 1895!"
+                        return false;
+                    } else if(this.filme.ano > this.anoAtual) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "O ano de lançamento não pode ser maior que " + this.anoAtual + "!"
+                        return false;
+                    } else if(this.filme.quantidadeTotal < 1) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "A quantidade não pode ser menor que 1!"
+                        return false;
+                    } else {
+                        return true;
+                    }
+                },
+
+                validarEdicao: function() {
+                    if(!this.filme.nome) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "Informe o nome do filme!"
+                        return false;
+                    } else if(!this.filme.ano) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "Informe o ano de lançamento do filme!"
+                        return false;
+                    } else if(this.filme.ano < 1895) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "O ano de lançamento não pode ser menor que 1895!"
+                        return false;
+                    } else if(this.filme.ano > this.anoAtual) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "O ano de lançamento não pode ser maior que " + this.anoAtual + "!"
+                        return false;
+                    } else if(this.filme.quantidadeTotal < 1) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "A quantidade total não pode ser menor que 1!"
+                        return false;
+                    } else if(this.filme.quantidadeDisponivel < 0) {
+                        this.formularioComErro = true;
+                        this.mensagemDeErro = "A quantidade disponivel não pode ser menor que 0!"
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            },
+            created: function() {
+                this.anoAtual =  new Date().getFullYear();
+            }
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+</body>
+</html>
